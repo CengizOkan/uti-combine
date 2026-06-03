@@ -1,6 +1,3 @@
-"""
-    Combines two separate sets of detection predictions into a single unified set of detections.
-"""
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../'))
@@ -16,37 +13,39 @@ class DetectionsCombine(Component):
         
         self.request.model = PackageModel(**(self.request.data))
         
-        # Girişleri çekiyoruz
+        # Parametreleri al (None olarak gelse bile)
         self.input_detections_one = self.request.get_param("inputDetectionsOne")
         self.input_detections_two = self.request.get_param("inputDetectionsTwo")
+        
+        # Şartname gereği flow control için branchstop eklenir
+        self.branchstop = False
     
     @staticmethod
     def bootstrap(config: dict) -> dict:
         return {}
     
-    def _normalize_detections(self, detections) -> list:
-        """
-        Ne tür bir veri gelirse gelsin güvenle standart bir listeye çevirir.
-        """
-        if not detections:
+    def _normalize(self, data):
+        if not data:
             return []
-        if isinstance(detections, dict):
-            return [detections]
-        if isinstance(detections, list):
-            return detections
+        if isinstance(data, dict):
+            return [data]
+        if isinstance(data, list):
+            return data
         return []
 
     def process(self):
-        # İki girişi de liste formatına getir ve birleştir
-        dets_one = self._normalize_detections(self.input_detections_one)
-        dets_two = self._normalize_detections(self.input_detections_two)
+        # Güvenli birleştirme
+        list1 = self._normalize(self.input_detections_one)
+        list2 = self._normalize(self.input_detections_two)
         
-        combined_detections = dets_one + dets_two
-        return combined_detections
+        # İki listeyi uç uca ekle
+        return list1 + list2
     
     def run(self):
+        # İşlem yap ve self.output_detections içine ata
         self.output_detections = self.process()
         
+        # Yanıtı derle
         package_model = build_response(context=self)
         return package_model
 

@@ -6,7 +6,12 @@ from components.DetectionsCombine.src.models.PackageModel import (
 )
 
 def build_response(context):
-    output_detections = OutputDetections(value=context.output_detections)
+    # Şartname kurallarına tam uyumlu branch kontrolü eklendi
+    if hasattr(context, 'branchstop') and context.branchstop:
+        output_detections = OutputDetections(value=context.output_detections, branch="stop")
+    else:
+        output_detections = OutputDetections(value=context.output_detections)
+        
     outputs = ExecutorOutputs(outputDetections=output_detections)
     
     executor_response = ExecutorResponse(outputs=outputs)
