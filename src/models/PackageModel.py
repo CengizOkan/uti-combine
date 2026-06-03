@@ -1,37 +1,23 @@
-from pydantic import validator
-from typing import List, Union, Literal
+from pydantic import Field
+from typing import Any, Literal
 from sdks.novavision.src.base.model import (
     Package, Inputs, Configs, Outputs, 
     Response, Request, Output, Input, Config
 )
 
-# Step 1: Define Input Classes (Her türlü dict/list veriyi kabul eder)
+# Step 1: Define Input Classes (En esnek yapı - Any kullanımı yasak olduğu için dict ve list)
 class InputDetectionsOne(Input):
     name: Literal["inputDetectionsOne"] = "inputDetectionsOne"
-    value: Union[dict, list]
+    value: dict | list | None = None
     type: str = "object"
-    
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, list):
-            return "list"
-        return "object"
     
     class Config:
         title = "Detections One"
 
 class InputDetectionsTwo(Input):
     name: Literal["inputDetectionsTwo"] = "inputDetectionsTwo"
-    value: Union[dict, list]
+    value: dict | list | None = None
     type: str = "object"
-    
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, list):
-            return "list"
-        return "object"
     
     class Config:
         title = "Detections Two"
@@ -39,15 +25,8 @@ class InputDetectionsTwo(Input):
 # Step 2: Define Output Classes
 class OutputDetections(Output):
     name: Literal["outputDetections"] = "outputDetections"
-    value: Union[dict, list]
+    value: dict | list
     type: str = "object"
-    
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, list):
-            return "list"
-        return "object"
     
     class Config:
         title = "Combined Detections"
@@ -58,7 +37,7 @@ class ExecutorConfigs(Configs):
 
 # Step 4: Build Config Parameters & Requests/Responses
 class ExecutorInputs(Inputs):
-    # Girişler zorunlu, arayüzde port olarak çıkması için Optional kullanılmadı.
+    # Arayüzde zorunlu olarak belirmesi için
     inputDetectionsOne: InputDetectionsOne
     inputDetectionsTwo: InputDetectionsTwo
 
@@ -80,7 +59,7 @@ class ExecutorResponse(Response):
 # Step 5: Define Executor Name Model
 class DetectionsCombine(Config):
     name: Literal["DetectionsCombine"] = "DetectionsCombine"
-    value: Union[ExecutorRequest, ExecutorResponse]
+    value: ExecutorRequest | ExecutorResponse
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
     
