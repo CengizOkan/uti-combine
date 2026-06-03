@@ -6,17 +6,14 @@ from components.DetectionsCombine.src.models.PackageModel import (
 )
 
 def build_response(context):
-    # Build outputs
     output_detections = OutputDetections(value=context.output_detections)
     outputs = ExecutorOutputs(outputDetections=output_detections)
     
-    # Build response chain
     executor_response = ExecutorResponse(outputs=outputs)
     executor = DetectionsCombine(value=executor_response)
     config_executor = ConfigExecutor(value=executor)
     package_configs = PackageConfigs(executor=config_executor)
     
-    # Build final package model
     package = PackageHelper(
         packageModel=PackageModel,
         packageConfigs=package_configs

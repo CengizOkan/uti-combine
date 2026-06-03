@@ -1,14 +1,14 @@
-from pydantic import Field, validator
-from typing import List, Union, Literal, Optional
+from pydantic import validator
+from typing import List, Union, Literal
 from sdks.novavision.src.base.model import (
-    Package, Detection, Inputs, Configs, Outputs, 
+    Package, Inputs, Configs, Outputs, 
     Response, Request, Output, Input, Config
 )
 
-# Step 1: Define Input Classes
+# Step 1: Define Input Classes (Her türlü dict/list veriyi kabul eder)
 class InputDetectionsOne(Input):
     name: Literal["inputDetectionsOne"] = "inputDetectionsOne"
-    value: Union[List[Detection], Detection]  # Optional ve None kaldırıldı
+    value: Union[dict, list]
     type: str = "object"
     
     @validator("type", pre=True, always=True)
@@ -23,7 +23,7 @@ class InputDetectionsOne(Input):
 
 class InputDetectionsTwo(Input):
     name: Literal["inputDetectionsTwo"] = "inputDetectionsTwo"
-    value: Union[List[Detection], Detection]  # Optional ve None kaldırıldı
+    value: Union[dict, list]
     type: str = "object"
     
     @validator("type", pre=True, always=True)
@@ -39,7 +39,7 @@ class InputDetectionsTwo(Input):
 # Step 2: Define Output Classes
 class OutputDetections(Output):
     name: Literal["outputDetections"] = "outputDetections"
-    value: Union[List[Detection], Detection]
+    value: Union[dict, list]
     type: str = "object"
     
     @validator("type", pre=True, always=True)
@@ -58,14 +58,15 @@ class ExecutorConfigs(Configs):
 
 # Step 4: Build Config Parameters & Requests/Responses
 class ExecutorInputs(Inputs):
-    inputDetectionsOne: InputDetectionsOne  # Optional ve None kaldırıldı
-    inputDetectionsTwo: InputDetectionsTwo  # Optional ve None kaldırıldı
+    # Girişler zorunlu, arayüzde port olarak çıkması için Optional kullanılmadı.
+    inputDetectionsOne: InputDetectionsOne
+    inputDetectionsTwo: InputDetectionsTwo
 
 class ExecutorOutputs(Outputs):
     outputDetections: OutputDetections
 
 class ExecutorRequest(Request):
-    inputs: ExecutorInputs  # Optional kaldırıldı
+    inputs: ExecutorInputs
     configs: ExecutorConfigs
     
     class Config:
