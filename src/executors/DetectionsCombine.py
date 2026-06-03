@@ -10,14 +10,10 @@ from components.DetectionsCombine.src.models.PackageModel import PackageModel
 class DetectionsCombine(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
-        
         self.request.model = PackageModel(**(self.request.data))
         
-        # Parametreleri al (None olarak gelse bile)
         self.input_detections_one = self.request.get_param("inputDetectionsOne")
         self.input_detections_two = self.request.get_param("inputDetectionsTwo")
-        
-        # Şartname gereği flow control için branchstop eklenir
         self.branchstop = False
     
     @staticmethod
@@ -34,18 +30,16 @@ class DetectionsCombine(Component):
         return []
 
     def process(self):
-        # Güvenli birleştirme
-        list1 = self._normalize(self.input_detections_one)
-        list2 = self._normalize(self.input_detections_two)
-        
-        # İki listeyi uç uca ekle
-        return list1 + list2
+        # Güvenlik zırhı: Herhangi bir veri bozukluğunda akışı kilitlemez
+        try:
+            list1 = self._normalize(self.input_detections_one)
+            list2 = self._normalize(self.input_detections_two)
+            return list1 + list2
+        except Exception as e:
+            return []
     
     def run(self):
-        # İşlem yap ve self.output_detections içine ata
         self.output_detections = self.process()
-        
-        # Yanıtı derle
         package_model = build_response(context=self)
         return package_model
 
