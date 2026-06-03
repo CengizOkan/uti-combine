@@ -1,23 +1,37 @@
-from pydantic import Field
-from typing import Any, Literal
+from pydantic import validator
+from typing import List, Union, Literal, Optional
 from sdks.novavision.src.base.model import (
     Package, Inputs, Configs, Outputs, 
     Response, Request, Output, Input, Config
 )
 
-# Step 1: Define Input Classes (En esnek yapı - Any kullanımı yasak olduğu için dict ve list)
+# Step 1: Define Input Classes
 class InputDetectionsOne(Input):
     name: Literal["inputDetectionsOne"] = "inputDetectionsOne"
-    value: dict | list | None = None
+    value: Union[dict, list]
     type: str = "object"
+    
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        value = values.get('value')
+        if isinstance(value, list):
+            return "list"
+        return "object"
     
     class Config:
         title = "Detections One"
 
 class InputDetectionsTwo(Input):
     name: Literal["inputDetectionsTwo"] = "inputDetectionsTwo"
-    value: dict | list | None = None
+    value: Union[dict, list]
     type: str = "object"
+    
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        value = values.get('value')
+        if isinstance(value, list):
+            return "list"
+        return "object"
     
     class Config:
         title = "Detections Two"
@@ -25,8 +39,15 @@ class InputDetectionsTwo(Input):
 # Step 2: Define Output Classes
 class OutputDetections(Output):
     name: Literal["outputDetections"] = "outputDetections"
-    value: dict | list
+    value: Union[dict, list]
     type: str = "object"
+    
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        value = values.get('value')
+        if isinstance(value, list):
+            return "list"
+        return "object"
     
     class Config:
         title = "Combined Detections"
@@ -37,7 +58,6 @@ class ExecutorConfigs(Configs):
 
 # Step 4: Build Config Parameters & Requests/Responses
 class ExecutorInputs(Inputs):
-    # Arayüzde zorunlu olarak belirmesi için
     inputDetectionsOne: InputDetectionsOne
     inputDetectionsTwo: InputDetectionsTwo
 
@@ -46,7 +66,9 @@ class ExecutorOutputs(Outputs):
 
 class ExecutorRequest(Request):
     inputs: ExecutorInputs
-    configs: ExecutorConfigs
+    # KRİTİK DÜZELTME: Platformdan gelen [] (list) değerinin Pydantic'i patlatmaması için 
+    # list, dict ve None tiplerini de Union olarak içeriye kabul ediyoruz.
+    configs: Union[ExecutorConfigs, list, dict, None] = None
     
     class Config:
         json_schema_extra = {
@@ -59,7 +81,7 @@ class ExecutorResponse(Response):
 # Step 5: Define Executor Name Model
 class DetectionsCombine(Config):
     name: Literal["DetectionsCombine"] = "DetectionsCombine"
-    value: ExecutorRequest | ExecutorResponse
+    value: Union[ExecutorRequest, ExecutorResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
     
