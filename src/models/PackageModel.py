@@ -1,5 +1,5 @@
 from pydantic import Field, validator
-from typing import List, Optional, Union, Literal
+from typing import List, Union, Literal, Optional
 from sdks.novavision.src.base.model import (
     Package, Detection, Inputs, Configs, Outputs, 
     Response, Request, Output, Input, Config
@@ -8,7 +8,7 @@ from sdks.novavision.src.base.model import (
 # Step 1: Define Input Classes
 class InputDetectionsOne(Input):
     name: Literal["inputDetectionsOne"] = "inputDetectionsOne"
-    value: Union[List[Detection], Detection, None] = None
+    value: Union[List[Detection], Detection]  # Optional ve None kaldırıldı
     type: str = "object"
     
     @validator("type", pre=True, always=True)
@@ -23,7 +23,7 @@ class InputDetectionsOne(Input):
 
 class InputDetectionsTwo(Input):
     name: Literal["inputDetectionsTwo"] = "inputDetectionsTwo"
-    value: Union[List[Detection], Detection, None] = None
+    value: Union[List[Detection], Detection]  # Optional ve None kaldırıldı
     type: str = "object"
     
     @validator("type", pre=True, always=True)
@@ -53,21 +53,20 @@ class OutputDetections(Output):
         title = "Combined Detections"
 
 # Step 3: Define Config Options
-# No specific functional configs required for pure combination, but keeping base required structure.
 class ExecutorConfigs(Configs):
     pass
 
 # Step 4: Build Config Parameters & Requests/Responses
 class ExecutorInputs(Inputs):
-    inputDetectionsOne: Optional[InputDetectionsOne] = None
-    inputDetectionsTwo: Optional[InputDetectionsTwo] = None
+    inputDetectionsOne: InputDetectionsOne  # Optional ve None kaldırıldı
+    inputDetectionsTwo: InputDetectionsTwo  # Optional ve None kaldırıldı
 
 class ExecutorOutputs(Outputs):
     outputDetections: OutputDetections
 
 class ExecutorRequest(Request):
-    inputs: Optional[ExecutorInputs] = None
-    configs: Optional[ExecutorConfigs] = None
+    inputs: ExecutorInputs  # Optional kaldırıldı
+    configs: ExecutorConfigs
     
     class Config:
         json_schema_extra = {
