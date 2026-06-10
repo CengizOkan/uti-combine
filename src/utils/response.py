@@ -6,7 +6,6 @@ from components.DetectionsCombine.src.models.PackageModel import (
 )
 
 def build_response(context):
-    # Şartname kurallarına tam uyumlu branch kontrolü eklendi
     if hasattr(context, 'branchstop') and context.branchstop:
         output_detections = OutputDetections(value=context.output_detections, branch="stop")
     else:

@@ -40,7 +40,6 @@ class OutputDetections(Output):
     value: Union[dict, list]
     type: str = "object"
     
-    # Kilitlenmeyi çözen kritik doğrulayıcı
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, v, values):
         val = values.get('value')
@@ -63,7 +62,6 @@ class ExecutorOutputs(Outputs):
 
 class ExecutorRequest(Request):
     inputs: ExecutorInputs
-    # Boş liste bug'ını engellemek için esnek tutuldu
     configs: Union[ExecutorConfigs, list, dict, None] = None
     
     class Config:

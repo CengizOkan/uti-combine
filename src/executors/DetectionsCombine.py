@@ -30,7 +30,6 @@ class DetectionsCombine(Component):
         return []
 
     def process(self):
-        # Güvenlik zırhı: Herhangi bir veri bozukluğunda akışı kilitlemez
         try:
             list1 = self._normalize(self.input_detections_one)
             list2 = self._normalize(self.input_detections_two)
