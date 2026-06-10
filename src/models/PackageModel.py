@@ -1,3 +1,4 @@
+"""Defines the input and output data models for the DetectionsCombine block."""
 from pydantic import validator
 from typing import Union, Literal
 from sdks.novavision.src.base.model import (
